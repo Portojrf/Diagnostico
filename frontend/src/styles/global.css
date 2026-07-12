@@ -1,0 +1,139 @@
+:root {
+  /* --- Brand palette (new logo-based identity) --- */
+  --c-brand: #1B3A8B;             /* PONTIS blue - primary */
+  --c-brand-strong: #142C6A;      /* darker blue for pressed states */
+  --c-brand-soft: #EEF2FA;        /* very light blue tint */
+  --c-brand-accent: #5AA8E0;      /* bridge water light blue */
+
+  --c-cta: #16A34A;               /* institucional green for CTAs */
+  --c-cta-strong: #15803D;
+  --c-cta-soft: #DCFCE7;
+
+  --c-orange: #F17E1A;            /* logo orange - detail accents only */
+  --c-orange-soft: #FEF3E7;
+
+  --c-warning: #F17E1A;           /* mapped to orange */
+  --c-error: #DC2626;
+  --c-success: var(--c-cta);
+
+  /* --- Surfaces --- */
+  --c-surface: #FFFFFF;
+  --c-surface-secondary: #F8FAFC;
+  --c-surface-tertiary: #E2E8F0;
+  --c-surface-inverse: #0F172A;
+
+  /* --- Text --- */
+  --c-on-surface: #0F172A;
+  --c-on-surface-secondary: #475569;
+  --c-on-brand: #FFFFFF;
+  --c-on-surface-inverse: #FFFFFF;
+
+  /* --- Borders --- */
+  --c-border: #E2E8F0;
+  --c-border-strong: #CBD5E1;
+
+  /* Legacy aliases kept for backwards compatibility with existing CSS classes */
+  --c-brand-secondary: var(--c-cta);
+  --c-brand-tertiary: var(--c-brand-accent);
+
+  /* Spacing */
+  --sp-xs: 4px;
+  --sp-sm: 8px;
+  --sp-md: 12px;
+  --sp-lg: 16px;
+  --sp-xl: 24px;
+  --sp-xxl: 32px;
+  --sp-xxxl: 48px;
+
+  /* Radius */
+  --r-sm: 6px;
+  --r-md: 12px;
+  --r-lg: 20px;
+  --r-pill: 999px;
+
+  /* Type */
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: var(--c-surface);
+  color: var(--c-on-surface);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body { overscroll-behavior-y: none; }
+img { max-width: 100%; display: block; }
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+button:focus-visible,
+input:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--c-brand);
+  outline-offset: 2px;
+}
+
+input { font-family: inherit; }
+
+@keyframes ps-fade-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ps-fade-in-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ps-zoom-in {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes ps-spin { to { transform: rotate(360deg); } }
+
+.ps-anim-in { animation: ps-fade-in 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.ps-delay-1 { animation-delay: 100ms; }
+.ps-delay-2 { animation-delay: 200ms; }
+.ps-delay-3 { animation-delay: 320ms; }
+.ps-delay-4 { animation-delay: 440ms; }
+.ps-delay-5 { animation-delay: 560ms; }
+
+.ps-spinner {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid rgba(27, 58, 139, 0.18);
+  border-top-color: var(--c-brand);
+  animation: ps-spin 0.9s linear infinite;
+}
+
+.ps-spinner.on-dark {
+  border-color: rgba(255, 255, 255, 0.2);
+  border-top-color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

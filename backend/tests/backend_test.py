@@ -50,7 +50,7 @@ def test_diagnostic_full(api):
     assert r.status_code == 200
     d = r.json()
     assert d["total_score"] == 100
-    assert d["tier"] == "Presenca digital de excelencia"
+    assert d["tier"] == "Presença digital de excelência"
     assert len(d["pillar_scores"]) == 5
     assert "id" in d
 
@@ -61,7 +61,7 @@ def test_diagnostic_low(api):
     assert r.status_code == 200
     d = r.json()
     assert d["total_score"] == 0
-    assert "fragil" in d["tier"].lower()
+    assert "frágil" in d["tier"].lower()
 
 
 def test_diagnostic_invalid_value(api):
@@ -96,6 +96,8 @@ def test_lead_create(api, diagnostic_id):
         "email": "test@example.com",
         "phone": "+351999999999",
         "diagnostic_id": diagnostic_id,
+        "privacy_accepted": True,
+        "marketing_accepted": False,
     }
     r = api.post(f"{BASE_URL}/api/lead", json=payload)
     assert r.status_code == 200, r.text
@@ -103,11 +105,23 @@ def test_lead_create(api, diagnostic_id):
     assert d["email_sent"] is False  # RESEND_API_KEY empty
     assert d["diagnostic_id"] == diagnostic_id
     assert d["name"] == "TEST User"
+    assert d["privacy_accepted"] is True
+    assert d["marketing_accepted"] is False
+    assert d.get("consent_at")
+
+
+def test_lead_privacy_rejected(api, diagnostic_id):
+    r = api.post(f"{BASE_URL}/api/lead", json={
+        "name": "TEST", "company": "TEST", "email": "a@b.com",
+        "diagnostic_id": diagnostic_id, "privacy_accepted": False,
+    })
+    assert r.status_code == 422
 
 
 def test_lead_bad_diagnostic(api):
     r = api.post(f"{BASE_URL}/api/lead", json={
-        "name": "X", "company": "Y", "email": "a@b.com", "diagnostic_id": "nope"
+        "name": "X", "company": "Y", "email": "a@b.com", "diagnostic_id": "nope",
+        "privacy_accepted": True,
     })
     assert r.status_code == 404
 

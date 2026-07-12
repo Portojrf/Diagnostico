@@ -1,0 +1,153 @@
+import LegalPage from "@/components/LegalPage";
+
+export default function Privacy() {
+  return (
+    <LegalPage
+      title="Política de Privacidade"
+      updatedAt="Fevereiro de 2026"
+      eyebrow="POLÍTICA DE PRIVACIDADE"
+    >
+      <p>
+        A presente Política de Privacidade descreve a forma como o
+        <strong> PontiScore</strong> (adiante <strong>“PontiScore”</strong>,
+        <strong> “nós”</strong>) — projeto em fase de desenvolvimento
+        conduzido por <strong>Jorge Fonseca</strong>, pessoa singular —
+        recolhe, utiliza, conserva e protege os dados pessoais dos
+        utilizadores que interagem com a plataforma de diagnóstico digital
+        disponível em <a href="https://www.pontiscore.pt" target="_blank" rel="noreferrer">www.pontiscore.pt</a>.
+      </p>
+      <p>
+        Cumprimos integralmente o Regulamento (UE) 2016/679 (“<strong>RGPD</strong>”),
+        a Lei n.º 58/2019, de 8 de agosto, e demais legislação portuguesa
+        aplicável em matéria de proteção de dados pessoais.
+      </p>
+
+      <h2>1. Responsável pelo tratamento</h2>
+      <p>
+        O responsável pelo tratamento dos seus dados pessoais é
+        <strong> Jorge Fonseca</strong>, na qualidade de pessoa singular
+        responsável pelo projeto PontiScore, contactável através dos seguintes meios:
+      </p>
+      <ul>
+        <li>Email: <a href="mailto:contacto@pontiscore.pt">contacto@pontiscore.pt</a></li>
+        <li>Telefone: <a href="tel:+351961472598">+351 961 472 598</a></li>
+        <li>Website: <a href="https://www.pontiscore.pt" target="_blank" rel="noreferrer">www.pontiscore.pt</a></li>
+      </ul>
+      <p>
+        <em>
+          Nota: o PontiScore encontra-se em fase de desenvolvimento e não
+          existe atualmente uma entidade constituída. Elementos como morada
+          fiscal, NIF ou Encarregado de Proteção de Dados serão acrescentados
+          nesta Política, caso aplicáveis, antes da publicação oficial.
+        </em>
+      </p>
+
+      <h2>2. Dados pessoais recolhidos</h2>
+      <p>Ao utilizar a plataforma, poderemos recolher os seguintes dados:</p>
+      <ul>
+        <li><strong>Dados de identificação e contacto:</strong> nome, empresa, endereço de email e, opcionalmente, número de telefone.</li>
+        <li><strong>Respostas ao diagnóstico:</strong> respostas dadas às 10 questões e pontuação (PontiScore) calculada.</li>
+        <li><strong>Registo de consentimento:</strong> data e hora do consentimento, aceitação da Política de Privacidade e opção (Sim/Não) para comunicações de marketing.</li>
+        <li><strong>Dados técnicos:</strong> data e hora de acesso, exclusivamente para fins de segurança e auditoria dos serviços.</li>
+      </ul>
+
+      <h2>3. Finalidades do tratamento</h2>
+      <p>Os dados recolhidos são utilizados para as seguintes finalidades:</p>
+      <ul>
+        <li>Gerar e enviar o Relatório PontiScore personalizado por email.</li>
+        <li>Prestar os serviços solicitados pelo utilizador, incluindo o agendamento eventual de uma sessão estratégica.</li>
+        <li>Cumprir obrigações legais aplicáveis.</li>
+        <li>Caso o utilizador autorize expressamente, envio de comunicações sobre marketing digital, novidades e conteúdos educativos da PontiScore.</li>
+      </ul>
+
+      <h2>4. Fundamento de licitude</h2>
+      <ul>
+        <li><strong>Consentimento</strong> (art. 6.º, n.º 1, alínea a) do RGPD): para o envio do relatório e para comunicações de marketing, quando aplicável.</li>
+        <li><strong>Execução de contrato ou diligências pré-contratuais</strong> (art. 6.º, n.º 1, alínea b)): para dar seguimento a pedidos formulados pelo utilizador.</li>
+        <li><strong>Interesse legítimo</strong> (art. 6.º, n.º 1, alínea f)): para garantir a segurança, integridade e melhoria dos serviços.</li>
+      </ul>
+
+      <h2>5. Como são armazenados os dados</h2>
+      <p>
+        Os dados são armazenados em bases de dados alojadas em servidores
+        localizados na União Europeia, com controlos técnicos e organizativos
+        adequados: encriptação em trânsito (HTTPS/TLS), controlos de acesso
+        por autenticação, princípio de menor privilégio e cópias de segurança
+        periódicas. As comunicações por email são efetuadas através de
+        subcontratantes reconhecidos que atuam na qualidade de operadores nos
+        termos do RGPD.
+      </p>
+
+      <h2>6. Prazos de conservação</h2>
+      <ul>
+        <li><strong>Diagnósticos e leads comerciais:</strong> conservados durante o período máximo de <strong>24 meses</strong> após a última interação do utilizador, salvo se o utilizador solicitar a sua eliminação antes deste prazo.</li>
+        <li><strong>Consentimentos de marketing:</strong> conservados enquanto se mantiver válido o consentimento; o utilizador pode retirá-lo a qualquer momento.</li>
+        <li><strong>Registos técnicos:</strong> conservados por um período máximo de <strong>12 meses</strong> para fins de auditoria e segurança.</li>
+      </ul>
+
+      <h2>7. Partilha com terceiros</h2>
+      <p>
+        O PontiScore não vende nem cede os seus dados a terceiros. Podemos
+        recorrer a subcontratantes (por exemplo, plataforma de envio de
+        email transacional) que atuam exclusivamente por conta e sob
+        instruções do responsável pelo tratamento, no estrito cumprimento do RGPD.
+      </p>
+
+      <h2>8. Direitos do titular dos dados</h2>
+      <p>Nos termos do RGPD, o utilizador tem direito a:</p>
+      <ul>
+        <li>Aceder aos seus dados pessoais e obter uma cópia dos mesmos;</li>
+        <li>Solicitar a retificação de dados incorretos ou desatualizados;</li>
+        <li>Solicitar o apagamento (“direito ao esquecimento”);</li>
+        <li>Solicitar a limitação do tratamento;</li>
+        <li>Opor-se ao tratamento em determinadas circunstâncias;</li>
+        <li>Portabilidade dos dados;</li>
+        <li>Retirar o consentimento a qualquer momento, sem afetar a licitude do tratamento previamente efetuado;</li>
+        <li>Apresentar reclamação à <strong>Comissão Nacional de Proteção de Dados (CNPD)</strong> em <a href="https://www.cnpd.pt" target="_blank" rel="noreferrer">www.cnpd.pt</a>.</li>
+      </ul>
+
+      <h2>9. Como exercer os seus direitos</h2>
+      <p>
+        Para exercer qualquer um dos direitos acima, envie um email para
+        <a href="mailto:contacto@pontiscore.pt"> contacto@pontiscore.pt</a>,
+        indicando o direito que pretende exercer. Poderemos solicitar
+        informação adicional necessária para confirmar a sua identidade.
+        Comprometemo-nos a responder no prazo máximo de 30 dias.
+      </p>
+
+      <h2>10. Menores</h2>
+      <p>
+        A plataforma destina-se exclusivamente a maiores de 16 anos. Não
+        recolhemos deliberadamente dados de menores de idade. Caso tenha
+        conhecimento de recolha inadvertida, entre em contacto para que os
+        dados sejam eliminados.
+      </p>
+
+      <h2>11. Cookies</h2>
+      <p>
+        A aplicação pode utilizar armazenamento local (localStorage/sessionStorage)
+        estritamente necessário ao funcionamento do diagnóstico. Não são
+        utilizados cookies de perfilação ou publicidade sem consentimento
+        prévio do utilizador.
+      </p>
+
+      <h2>12. Alterações à política</h2>
+      <p>
+        Esta Política pode ser atualizada periodicamente. A versão em vigor
+        é sempre a publicada nesta página, com a respetiva data de
+        atualização indicada no topo.
+      </p>
+
+      <h2>13. Contactos</h2>
+      <p>Para qualquer questão relativa ao tratamento dos seus dados pessoais:</p>
+      <ul>
+        <li>Email: <a href="mailto:contacto@pontiscore.pt">contacto@pontiscore.pt</a></li>
+        <li>Telefone: <a href="tel:+351961472598">+351 961 472 598</a></li>
+        <li>Website: <a href="https://www.pontiscore.pt" target="_blank" rel="noreferrer">www.pontiscore.pt</a></li>
+        <li>Instagram: <a href="https://www.instagram.com/pontiscore/" target="_blank" rel="noreferrer">@pontiscore</a></li>
+        <li>Facebook: <a href="https://facebook.com/pontiscore" target="_blank" rel="noreferrer">facebook.com/pontiscore</a></li>
+        <li>LinkedIn: <a href="https://www.linkedin.com/in/pontiscore" target="_blank" rel="noreferrer">linkedin.com/in/pontiscore</a></li>
+      </ul>
+    </LegalPage>
+  );
+}
