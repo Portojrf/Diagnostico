@@ -36,7 +36,12 @@ RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "").strip()
 RESEND_FROM_EMAIL = os.environ.get("RESEND_FROM_EMAIL", "PontiScore <onboarding@resend.dev>")
 ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "contacto@pontiscore.pt")
 
-if RESEND_API_KEY:
+# A valid Resend key starts with "re_". Any other value (empty, "CHANGE_ME",
+# other placeholders) is treated as "not configured": leads are still saved,
+# emails are skipped, and no error is logged.
+RESEND_ENABLED = RESEND_API_KEY.startswith("re_")
+
+if RESEND_ENABLED:
     resend.api_key = RESEND_API_KEY
 
 app = FastAPI(title="PontiScore API")
@@ -660,8 +665,8 @@ def build_pdf(result: dict, lead: Optional[dict] = None) -> bytes:
 
 
 def send_lead_emails(lead: dict, result: dict, pdf_bytes: bytes) -> bool:
-    if not RESEND_API_KEY:
-        logger.warning("RESEND_API_KEY missing. Skipping email send.")
+    if not RESEND_ENABLED:
+        logger.warning("RESEND_API_KEY not configured. Skipping email send.")
         return False
 
     try:
