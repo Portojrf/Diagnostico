@@ -1,0 +1,26 @@
+{
+  "summary": "Regression verification for RecursionError fix in PDF generation + /api/lead robustness. Backend pytest suite: 35/35 passed. Regression matrix (all-nao / all-sim / mixed) via POST /api/lead — all returned 200 with email_sent=false. RGPD enforcement (422 on privacy_accepted=false or missing) verified. Unknown diagnostic_id -> 404 verified. GET /api/questions -> 10 questions + 5 pillars OK. GET /api/leads -> {leads,total,skip,limit} OK, no _id leakage. Frontend e2e: Landing -> /diagnostico (10 auto-advance answers) -> /resultado/:id -> lead form (privacy ticked) -> submit -> /obrigado. No hang/infinite loop, no console errors. RESEND_API_KEY='CHANGE_ME' triggers ResendError('API key is invalid') server-side but is swallowed by try/except; email_sent=false, endpoint still 200 — behavior matches spec.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_pontiscore_api.py",
+    "/app/backend/tests/test_rgpd.py",
+    "/app/backend/tests/test_pdf_smoke.py",
+    "/app/backend/tests/test_editorial_pt.py",
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py: RESEND_API_KEY='CHANGE_ME' is truthy so send_lead_emails() still calls Resend and fails on every request (logs full stack trace as ERROR). It IS caught by both the inner try/except in send_lead_emails and the outer try/except in create_lead so /api/lead stays 200 — but the noisy stack traces spam backend logs. Consider treating 'CHANGE_ME' / other placeholder patterns as unset, or downgrade the log to warning when the failure is 'API key is invalid'.",
+    "server.py still uses deprecated @app.on_event('shutdown') — migrate to FastAPI lifespan handlers (also flagged in iteration_3).",
+    "Tests still read EXPO_PUBLIC_BACKEND_URL with stale hardcoded fallback 'sme-health-check.preview.emergentagent.com' — flagged in prior iteration, still not fixed. Not blocking (env is exported during runs)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "seed_data_creation": "Ephemeral TEST_-prefixed diagnostics and leads created during test run (test_all_nao, test_all_sim, test_mixed, TEST_Playwright).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "PDF RecursionError regression fix (removal of KeepTogether + _to_plain sanitizer + outer try/except in create_lead) is fully verified. /api/lead is robust: PDF/email failures never bubble as 5xx. Note: with RESEND_API_KEY='CHANGE_ME' the backend logs a Resend ERROR + stack trace on every lead submit — expected but noisy. All 35 backend tests + full frontend e2e pass. No further action needed.",
+  "rca of the issue": "Root cause of the reported RecursionError on the user's PTISP deployment was reportlab's KeepTogether flowables attempting to recursively split when they didn't fit, combined with a MongoDB document (BSON datetimes / potentially self-referencing structures) being passed directly into the PDF pipeline. Fix: (1) build_pdf() now assembles flowables linearly (no KeepTogether), (2) _to_plain() JSON-round-trips Mongo docs into JSON-safe primitives (raises immediately on any cyclic reference before it reaches reportlab), (3) create_lead() wraps build_pdf+send in try/except so any PDF or Resend failure yields email_sent=false and a persisted lead, never a 5xx. Verified in-process (test_build_pdf_direct_no_exception) and via HTTP for all-nao/all-sim/mixed answer sets."
+}

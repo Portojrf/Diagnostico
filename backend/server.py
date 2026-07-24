@@ -5,6 +5,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 import io
+import json
 import base64
 from pathlib import Path
 from pydantic import BaseModel, Field, EmailStr, field_validator
@@ -20,7 +21,6 @@ from reportlab.lib.enums import TA_LEFT, TA_CENTER
 from reportlab.lib.utils import ImageReader
 from reportlab.platypus import (
     SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak,
-    KeepTogether,
 )
 
 import resend
@@ -166,6 +166,17 @@ class LeadResponse(BaseModel):
 
 
 # ---------- Utilities ----------
+
+def _to_plain(data):
+    """Convert MongoDB documents into plain, JSON-safe types (str/int/float/bool/list/dict).
+
+    A json dump/load round-trip strips BSON types (ObjectId, datetime, etc.) and,
+    crucially, raises immediately on any circular reference — so no cyclic structure
+    can ever reach the PDF/report logic and trigger a RecursionError. This runs
+    once per request and involves no explicit recursion on our side.
+    """
+    return json.loads(json.dumps(data, default=str))
+
 
 def compute_result(answers: List[Answer]) -> DiagnosticResult:
     answer_map: Dict[int, int] = {}
@@ -542,7 +553,7 @@ def build_pdf(result: dict, lead: Optional[dict] = None) -> bytes:
         ("LEFTPADDING", (1, 0), (1, 0), 4),
         ("RIGHTPADDING", (0, 0), (0, 0), 4),
     ]))
-    story.append(KeepTogether(sw_row))
+    story.append(sw_row)
 
     # Force page 2 for recommendations to breathe
     story.append(PageBreak())
@@ -635,7 +646,7 @@ def build_pdf(result: dict, lead: Optional[dict] = None) -> bytes:
         ("TOPPADDING", (0, 2), (-1, 2), 2),
         ("ROUNDEDCORNERS", [10, 10, 10, 10]),
     ]))
-    story.append(KeepTogether(cta_box))
+    story.append(cta_box)
 
     story.append(Spacer(1, 12))
     story.append(Paragraph(
@@ -758,6 +769,10 @@ async def create_lead(payload: LeadCreate):
     if not diag:
         raise HTTPException(status_code=404, detail="Diagnostic not found")
 
+    # Normalize the Mongo document to plain, JSON-safe types before it enters the
+    # report logic. This removes BSON types and guards against circular references.
+    diag = _to_plain(diag)
+
     now_iso = datetime.now(timezone.utc).isoformat()
     lead_doc = {
         "id": str(uuid.uuid4()),
@@ -773,8 +788,16 @@ async def create_lead(payload: LeadCreate):
         "consent_at": now_iso,
     }
 
-    pdf_bytes = build_pdf(diag, lead_doc)
-    email_sent = send_lead_emails(lead_doc, diag, pdf_bytes)
+    # Report generation + email must never crash the API. If anything fails
+    # (PDF rendering, Resend, etc.) we still persist the lead and return 200.
+    email_sent = False
+    try:
+        pdf_bytes = build_pdf(diag, _to_plain(lead_doc))
+        email_sent = send_lead_emails(lead_doc, diag, pdf_bytes)
+    except Exception as e:
+        logger.exception("Report/email step failed; lead is saved regardless: %s", e)
+        email_sent = False
+
     lead_doc["email_sent"] = email_sent
 
     await db.leads.insert_one(lead_doc.copy())
