@@ -13,36 +13,41 @@ from typing import List, Optional, Dict
 import uuid
 from datetime import datetime, timezone
 
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import cm, mm
-from reportlab.lib import colors
-from reportlab.lib.enums import TA_LEFT, TA_CENTER
-from reportlab.lib.utils import ImageReader
-from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak,
-)
-
-import resend
-
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / ".env")
 
-mongo_url = os.environ["MONGO_URL"]
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ["DB_NAME"]]
+# ---------- Lazy MongoDB connection ----------
+# The Mongo client / DB handle are created on FIRST USE (via get_db()), never at
+# import time. Importing this module therefore opens no sockets and runs no heavy
+# side effects — important under cPanel/Passenger, where import-time work can fail
+# or loop. reportlab and resend are likewise imported lazily inside the functions
+# that use them (build_pdf / send_lead_emails).
+_mongo_client: Optional["AsyncIOMotorClient"] = None
+_mongo_db = None
 
-RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "").strip()
+
+def get_db():
+    """Return the MongoDB database handle, creating the connection on first call."""
+    global _mongo_client, _mongo_db
+    if _mongo_db is None:
+        _mongo_client = AsyncIOMotorClient(os.environ["MONGO_URL"])
+        _mongo_db = _mongo_client[os.environ["DB_NAME"]]
+    return _mongo_db
+
+
 RESEND_FROM_EMAIL = os.environ.get("RESEND_FROM_EMAIL", "PontiScore <onboarding@resend.dev>")
 ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "contacto@pontiscore.pt")
 
-# A valid Resend key starts with "re_". Any other value (empty, "CHANGE_ME",
-# other placeholders) is treated as "not configured": leads are still saved,
-# emails are skipped, and no error is logged.
-RESEND_ENABLED = RESEND_API_KEY.startswith("re_")
 
-if RESEND_ENABLED:
-    resend.api_key = RESEND_API_KEY
+def _resend_api_key() -> str:
+    """Return the Resend key only if it looks valid (starts with 're_').
+
+    Any other value (empty, 'CHANGE_ME', other placeholders) is treated as
+    'not configured': leads are still saved and emails are simply skipped.
+    """
+    key = os.environ.get("RESEND_API_KEY", "").strip()
+    return key if key.startswith("re_") else ""
+
 
 app = FastAPI(title="PontiScore API")
 api_router = APIRouter(prefix="/api")
@@ -246,6 +251,18 @@ def build_pdf(result: dict, lead: Optional[dict] = None) -> bytes:
     Layout: branded header strip + score hero + pillar bars + strengths/weaknesses
     cards + numbered recommendations + full-width footer with contacts on every page.
     """
+    # Lazy imports: reportlab is only loaded when a PDF is actually generated,
+    # keeping module import free of heavy side effects.
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import cm, mm
+    from reportlab.lib import colors
+    from reportlab.lib.enums import TA_LEFT, TA_CENTER
+    from reportlab.lib.utils import ImageReader
+    from reportlab.platypus import (
+        SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak,
+    )
+
     buf = io.BytesIO()
 
     # ----- Palette (mirrors the new web app tokens: blue + green + orange) -----
@@ -665,11 +682,14 @@ def build_pdf(result: dict, lead: Optional[dict] = None) -> bytes:
 
 
 def send_lead_emails(lead: dict, result: dict, pdf_bytes: bytes) -> bool:
-    if not RESEND_ENABLED:
+    api_key = _resend_api_key()
+    if not api_key:
         logger.warning("RESEND_API_KEY not configured. Skipping email send.")
         return False
 
     try:
+        import resend
+        resend.api_key = api_key
         pdf_b64 = base64.b64encode(pdf_bytes).decode("utf-8")
 
         # Email to lead
@@ -745,13 +765,13 @@ async def create_diagnostic(payload: DiagnosticRequest):
     result = compute_result(payload.answers)
     doc = result.model_dump()
     doc["answers"] = [a.model_dump() for a in payload.answers]
-    await db.diagnostics.insert_one(doc.copy())
+    await get_db().diagnostics.insert_one(doc.copy())
     return result
 
 
 @api_router.get("/diagnostic/{diagnostic_id}", response_model=DiagnosticResult)
 async def get_diagnostic(diagnostic_id: str):
-    doc = await db.diagnostics.find_one({"id": diagnostic_id}, {"_id": 0})
+    doc = await get_db().diagnostics.find_one({"id": diagnostic_id}, {"_id": 0})
     if not doc:
         raise HTTPException(status_code=404, detail="Diagnostic not found")
     return DiagnosticResult(
@@ -768,6 +788,7 @@ async def get_diagnostic(diagnostic_id: str):
 
 @api_router.post("/lead", response_model=LeadResponse)
 async def create_lead(payload: LeadCreate):
+    db = get_db()
     diag = await db.diagnostics.find_one(
         {"id": payload.diagnostic_id}, {"_id": 0}
     )
@@ -814,6 +835,7 @@ async def list_leads(skip: int = 0, limit: int = 50):
     # Bounded pagination — production-safe, no unbounded reads
     limit = max(1, min(int(limit), 200))
     skip = max(0, int(skip))
+    db = get_db()
     cursor = (
         db.leads.find({}, {"_id": 0})
         .sort("created_at", -1)
@@ -838,4 +860,5 @@ app.add_middleware(
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
-    client.close()
+    if _mongo_client is not None:
+        _mongo_client.close()

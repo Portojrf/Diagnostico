@@ -1,0 +1,26 @@
+{
+  "summary": "Regression verified after lazy-init refactor (get_db(), lazy reportlab & resend imports). Import-time check confirms server module import opens no MongoDB connection and does not import reportlab/resend (server._mongo_client, server._mongo_db, sys.modules['reportlab'], sys.modules['resend'] all None/absent right after `import server`). Full backend pytest suite: 35/35 passed (test_pontiscore_api, test_rgpd, test_pdf_smoke, test_editorial_pt, backend_test). Frontend e2e via public URL: Landing -> /diagnostico (10x Sim auto-advance) -> /resultado/:id dashboard renders (score 100, all pillars, strengths card) -> lead form (data-testids present) -> privacy checkbox ticked -> submit -> /obrigado. No console errors, no pageerrors. RESEND_API_KEY='CHANGE_ME' correctly treated as unset by _resend_api_key() (only 're_' prefixed keys accepted) so no Resend call is attempted and no error stack traces are logged — improvement over iteration_4 concern.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_pontiscore_api.py",
+    "/app/backend/tests/test_rgpd.py",
+    "/app/backend/tests/test_pdf_smoke.py",
+    "/app/backend/tests/test_editorial_pt.py",
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py still uses deprecated @app.on_event('shutdown') — migrate to FastAPI lifespan handlers (repeat from iteration_3/4, non-blocking).",
+    "Lazy-init is correctly implemented: get_db() memoizes the AsyncIOMotorClient; reportlab is imported inside build_pdf(); resend is imported inside send_lead_emails(); _resend_api_key() gates on 're_' prefix so placeholders like 'CHANGE_ME' skip email entirely. Good pattern for the cPanel/Passenger RecursionError-at-startup scenario.",
+    "shutdown handler correctly closes the client only if it was created — no side effects when no request ever hit the DB."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "seed_data_creation": "Ephemeral TEST_-prefixed diagnostics and leads created during pytest run + one Playwright lead (TEST Playwright / TEST Co / test@example.com).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Lazy-init refactor is verified end-to-end. Importing /app/backend/server.py performs no I/O and no heavy imports. All 35 backend tests + full frontend e2e (diagnóstico -> resultado -> lead -> obrigado) pass on the preview URL. RESEND_API_KEY='CHANGE_ME' is now silently treated as not configured (email_sent=false, no stack traces).",
+  "rca of the issue": "N/A — regression verification only. Original PTISP RecursionError was addressed in prior iterations (iterative PDF build, _to_plain sanitizer, try/except in create_lead). This iteration confirms the additional import-time hardening (lazy DB connect + lazy reportlab/resend imports) preserves all functionality without opening sockets or importing heavy modules at import time."
+}
