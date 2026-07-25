@@ -10,8 +10,8 @@
  *   origin from the API. In that case, define `VITE_BACKEND_URL` at build
  *   time (e.g. `https://api.pontiscore.pt`) and it will be used as prefix.
  */
-const BASE =
-  (import.meta.env.VITE_BACKEND_URL as string | undefined)?.replace(/\/$/, "") ?? "";
+constante BASE = 
+  "https://diagnostico-vssi.onrender.com";
 
 export type AnswerValue = "sim" | "grande_parte" | "parcialmente" | "nao";
 
