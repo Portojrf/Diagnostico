@@ -1,0 +1,32 @@
+{
+  "summary": "Validated cPanel/Passenger WSGI entrypoint (passenger_wsgi.py) and full backend regression after adding a2wsgi==1.10.10. New test file /app/backend/tests/test_passenger_wsgi.py imports `application` from passenger_wsgi (a2wsgi.ASGIMiddleware wrapping server.app), then drives it via raw WSGI environ dicts (io.BytesIO body, custom start_response) for: (1) GET /api/ -> 200 {status:ok}; (2) two sequential POST /api/diagnostic -> both 200 with distinct ids (guards against motor 'attached to a different loop' — a2wsgi runs the ASGI app on a single persistent loop so the memoized AsyncIOMotorClient stays valid across requests); (3) GET /api/diagnostic/{id} -> 200; (4) POST /api/lead with privacy_accepted=true -> 200, email_sent=false, diagnostic_id echoed, PDF build path exercised end-to-end. Import-time safety re-asserted: after `import server`, server._mongo_db and server._mongo_client are None, and neither 'reportlab' nor 'resend' are in sys.modules. Full suite: 39/39 passed (35 existing regression + 4 new WSGI tests). Note: existing test files (test_pontiscore_api, test_rgpd, test_editorial_pt, test_pdf_smoke) hard-code a fallback BASE URL of https://sme-health-check.preview.emergentagent.com and read EXPO_PUBLIC_BACKEND_URL; when run without that env var they 404 against the wrong host. Ran with EXPO_PUBLIC_BACKEND_URL=REACT_APP_BACKEND_URL from /app/frontend/.env — all green.",
+  "backend_issues": {"critical": [], "minor": [
+    {"endpoint": "n/a — test harness", "issue": "test_pontiscore_api.py / test_rgpd.py / test_editorial_pt.py / test_pdf_smoke.py fall back to a stale hard-coded preview host (sme-health-check...) when EXPO_PUBLIC_BACKEND_URL is unset; they should read REACT_APP_BACKEND_URL from /app/frontend/.env like backend_test.py does."}
+  ]},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_passenger_wsgi.py",
+    "/app/backend/tests/backend_test.py",
+    "/app/backend/tests/test_pontiscore_api.py",
+    "/app/backend/tests/test_rgpd.py",
+    "/app/backend/tests/test_editorial_pt.py",
+    "/app/backend/tests/test_pdf_smoke.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Optional: normalize BASE URL resolution in test_pontiscore_api.py/test_rgpd.py/test_editorial_pt.py/test_pdf_smoke.py to prefer REACT_APP_BACKEND_URL (or read /app/frontend/.env) so `pytest tests/` works without an ad-hoc env var. Not blocking — tests pass when the env var is provided.",
+    "Optional (repeat from prior iterations): migrate @app.on_event('shutdown') to FastAPI lifespan handlers to silence DeprecationWarning."
+  ],
+  "critical_code_review_comments": [
+    "passenger_wsgi.py is minimal and correct: sys.path insert, `from server import app as asgi_app`, `application = ASGIMiddleware(asgi_app)`. Comments clearly explain the cPanel 'Application startup file' + 'Entry point = application' config and diagnose the original 'cannot find module servidor' misconfiguration.",
+    "a2wsgi.ASGIMiddleware maintains a single event loop for the wrapped ASGI app, which is exactly what the lazy motor client in get_db() needs to avoid 'attached to a different loop'. Verified empirically with two sequential POST /api/diagnostic calls through the WSGI callable.",
+    "Import-time safety continues to hold: cold `import server` opens no DB socket and does not import reportlab/resend — critical for cPanel/Passenger boot on shared hosting where startup RecursionError / import cost matters."
+  ],
+  "updated_files": ["/app/backend/tests/test_passenger_wsgi.py"],
+  "success_rate": {"backend": "100%", "frontend": "n/a (skipped per request)"},
+  "seed_data_creation": "Ephemeral diagnostics + one TEST WSGI lead created during pytest; TEST_-prefixed data from other suites.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Passenger/WSGI wrapper is verified. If the user still hits errors on cPanel, the remaining likely causes are cPanel-side config (Application startup file not set to passenger_wsgi.py, Entry point not set to `application`, wrong Application root, or missing env vars like MONGO_URL). We cannot reproduce cPanel in this environment. To run the full suite in one go: `EXPO_PUBLIC_BACKEND_URL=$REACT_APP_BACKEND_URL pytest /app/backend/tests/ -v`.",
+  "rca_of_the_issue": "Original 'cannot find module servidor' was a cPanel misconfiguration: Passenger's Application startup file (or Entry point) was pointing at a non-existent module 'servidor'. Fix implemented by main agent: added /app/backend/passenger_wsgi.py exposing `application = ASGIMiddleware(server.app)` (module name is `server`, not `servidor`) plus a2wsgi==1.10.10 in requirements.txt. This testing iteration confirms the wrapper is a valid WSGI callable and handles GET, sequential POSTs (motor loop stable), and the lead+PDF path — all 200 — with no regression to the uvicorn-served preview."
+}
