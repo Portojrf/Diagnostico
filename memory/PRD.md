@@ -1,31 +1,38 @@
-# PontiScore — Product Requirements Document (PRD)
+# PontiScore — PRD (versão PHP + MySQL para cPanel)
 
-## Original Problem Statement
-Import the full codebase from GitHub (Portojrf/Pontiscore-diag) and recreate it as a Full Stack Web App (Vite + React + FastAPI) compatible with the Emergent Web pipeline. Preserve everything (landing, questionnaire, dashboard, automatic PDF, MongoDB, Resend, visual identity, components, models, business logic, tests). Do not simplify or rebuild from scratch.
+## Estado atual
+O projeto foi **convertido para HTML + CSS + JavaScript + PHP puro + MySQL**, a pedido do
+utilizador, para correr em alojamento cPanel/PTISP (sem Python/Node/Composer/build).
+O stack anterior (React Vite + FastAPI + MongoDB) foi **removido** de `/app` (backend/ e
+frontend/ apagados; serviços supervisor parados).
 
-## Canonical Source (IMPORTANT)
-The correct, latest version is on branch **`conflict_120726_0155`** (commit `6df6ed9`, 2026-07-12 00:55). The Emergent support team migrated the app there from Expo/React Native to a **Vite + React + TypeScript** web app (the old Expo code is kept under `frontend-expo-backup/` in that repo). This `/app` project mirrors that branch.
+## Entregável
+Pasta `/app/php-cpanel/` (arrastar para `public_html/` no cPanel):
+- `index.html` — SPA em vanilla JS (Landing, Questionário, Dashboard, Obrigado)
+- `privacidade.html`, `termos.html` — páginas legais
+- `assets/` — `styles.css` (identidade visual original), `app.js`, `logo-pontiscore.png`, `favicon.svg`
+- `api/` — `config.php` (a preencher), `db.php` (PDO), `lib.php` (scoring), `diagnostic.php`, `lead.php`
+- `sql/schema.sql` — tabelas `diagnostics` e `leads`
+- `LEIA-ME-cPanel.txt` — instruções de instalação
 
-## Stack / Architecture
-- **Frontend**: Vite + React 19 + TypeScript, `/app/frontend`, supervisor `yarn start` → `vite --port 3000`. API via `src/lib/api.ts` using relative `/api` (same-origin ingress) or `VITE_BACKEND_URL`. Plain CSS (page-level `.css` + `styles/global.css`). Icons: lucide-react. Fonts: Inter.
-- **Backend**: FastAPI + MongoDB (`/app/backend/server.py`). Endpoints: `GET /api/questions`, `POST /api/diagnostic`, `GET /api/diagnostic/{id}`, `POST /api/lead`, `GET /api/leads` (paginated). PDF via reportlab (premium 2-page, logo). Emails via Resend.
-- Brand palette: navy `#1B3A8B`, green `#16A34A`, orange `#F17E1A`. Language: Portuguese (PT-PT, with accents).
+## Lógica de negócio (preservada, paridade verificada)
+- 10 perguntas → scoring 0–100 (sim=10/grande_parte=7/parcialmente=4/nao=0), 5 pilares normalizados.
+- Tiers: ≥80 excelência, ≥60 boa, ≥40 construção, <40 frágil. Fortes ≥70, fracos <50, recs low<50/mid<75/high.
+- Estatísticas mostradas no ecrã logo após a 10.ª pergunta (`diagnostic.php`).
+- Relatório completo enviado por **email HTML (Resend)** apenas após o formulário (`lead.php`), com consentimento RGPD obrigatório (422 sem privacidade).
 
-## Routes
-`/` Landing · `/diagnostico` Questions · `/resultado/:id` Dashboard · `/obrigado` ThankYou · `/privacidade` Privacy · `/termos` Terms.
+## Integrações
+- **MySQL** via PDO (config em `api/config.php`).
+- **Resend** via cURL (email HTML rico, sem anexo). Chave em `config.php` (vazia → leads gravadas, `email_sent=false`).
 
-## Scoring
-Sim=10 / Em grande parte=7 / Parcialmente=4 / Não=0; 10 questions → 0–100. 5 pillars normalized 0-100. Tiers at 80/60/40.
+## Validação feita (2026)
+- `php -l` OK em todos os ficheiros PHP.
+- Paridade de scoring PHP vs Python confirmada (all-sim=100/excelência, all-nao=0/frágil, misto=50).
+- CSS/DOM reutilizados verbatim do frontend React → identidade visual idêntica.
+- NÃO validado neste ambiente: endpoints PHP com MySQL (sem servidor MySQL nem extensões pdo_mysql/curl no PHP CLI local). A validar no cPanel.
 
-## RGPD
-`POST /api/lead` requires `privacy_accepted=true` (422 otherwise); optional `marketing_accepted`; stores `consent_at`. Legal pages: Privacy + Terms.
-
-## Implemented (2026-07-12)
-- Imported canonical Vite frontend + upgraded backend from branch `conflict_120726_0155`.
-- Old Expo→CRA port replaced entirely. Backend logo + tests copied. Vite deps installed; supervisor runs Vite on 3000.
-- Verified: backend full flow incl. RGPD 422 + PDF build (email_sent=false, no Resend key); frontend E2E quiz→dashboard renders via relative /api.
-
-## Backlog / Next
-- P1: Provide real `RESEND_API_KEY` (+ verified sender) to enable email/PDF delivery.
-- P2: Migrate deprecated `@app.on_event("shutdown")` to lifespan.
-- P2: Admin view for `/api/leads`.
+## Próximos passos (utilizador)
+1. Criar BD MySQL + importar `sql/schema.sql` (phpMyAdmin).
+2. Preencher `api/config.php` (MySQL + Resend).
+3. Arrastar `php-cpanel/` para `public_html/`.
+4. "Save to GitHub" para versionar.

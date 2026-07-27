@@ -1,0 +1,65 @@
+PontiScore — Versão PHP + MySQL (para cPanel / PTISP)
+======================================================
+
+Esta pasta contém a aplicação completa em HTML + CSS + JavaScript + PHP (puro),
+com base de dados MySQL. Não necessita de Python, Node, Composer nem build.
+
+--------------------------------------------------------------------
+LISTA DE FICHEIROS A COLOCAR NO cPanel (dentro de public_html/)
+--------------------------------------------------------------------
+public_html/
+├── index.html            → Landing + Questionário + Dashboard + Obrigado (SPA)
+├── privacidade.html      → Política de Privacidade
+├── termos.html           → Termos de Utilização
+├── assets/
+│   ├── styles.css        → Todo o CSS (identidade visual original)
+│   ├── app.js            → Lógica do questionário / dashboard / formulário
+│   ├── logo-pontiscore.png
+│   └── favicon.svg
+├── api/
+│   ├── config.php        → *** PREENCHER *** (MySQL + chave Resend)
+│   ├── db.php            → Ligação PDO ao MySQL
+│   ├── lib.php           → Perguntas, pilares, scoring e recomendações
+│   ├── diagnostic.php    → Recebe respostas → calcula → guarda → devolve estatísticas
+│   └── lead.php          → Guarda a lead (RGPD) → envia relatório por email (Resend)
+└── sql/
+    └── schema.sql        → Cria as tabelas (diagnostics, leads)
+
+--------------------------------------------------------------------
+PASSOS DE INSTALAÇÃO
+--------------------------------------------------------------------
+1. Arraste TODO o conteúdo desta pasta para public_html/ (ou subpasta) no
+   Gestor de Ficheiros do cPanel.
+
+2. Base de dados:
+   a) cPanel → "MySQL® Databases" → crie uma base de dados e um utilizador,
+      e associe o utilizador à base de dados (com TODOS os privilégios).
+   b) cPanel → "phpMyAdmin" → selecione a base de dados → separador "Importar"
+      → escolha o ficheiro sql/schema.sql → "Executar".
+      (Em alternativa, copie o conteúdo de schema.sql para o separador "SQL".)
+
+3. Configuração: edite api/config.php e preencha:
+   - db.name / db.user / db.pass  (host normalmente "localhost")
+   - resend.api_key   (chave do Resend, começa por "re_"; deixe vazio para
+     desativar o envio — as leads continuam a ser gravadas na mesma)
+   - resend.from      (remetente num domínio VERIFICADO no Resend, ex.:
+     "PontiScore <contacto@pontiscore.pt>")
+   - resend.admin     (email que recebe a notificação de cada nova lead)
+
+4. Requisitos do servidor: PHP 7.4+ com extensões PDO_MySQL e cURL
+   (ativas por omissão na maioria dos alojamentos cPanel/PTISP).
+
+5. Aceda ao seu domínio. Fluxo:
+   Landing → 10 perguntas → estatísticas no ecrã (logo após a 10.ª pergunta)
+   → preenche o formulário de contacto → recebe o relatório completo por email.
+
+--------------------------------------------------------------------
+NOTAS
+--------------------------------------------------------------------
+- Segurança RGPD: o campo "Política de Privacidade" é obrigatório; sem ele o
+  servidor devolve erro 422 e não regista a lead.
+- Os ícones usam a biblioteca Lucide via CDN (necessita de acesso à internet no
+  navegador do visitante). Para uso 100% offline pode substituir por SVGs locais.
+- Privacidade dos segredos: recomenda-se restringir o acesso direto a
+  api/config.php (o PHP não expõe o conteúdo, mas pode adicionar regras no
+  .htaccess se desejar reforço adicional).

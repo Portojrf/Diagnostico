@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="pt-PT">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#1B3A8B" />
+    <meta name="description" content="PontiScore — Descubra o potencial da sua presença digital em apenas 2 minutos e receba um plano de ação personalizado." />
+    <title>PontiScore — Diagnóstico Digital Premium</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/styles.css" />
+  </head>
+  <body>
+    <!-- ============ LANDING ============ -->
+    <main class="landing view is-active" id="view-landing" data-testid="landing-screen">
+      <header class="landing__topbar">
+        <div class="landing__topbar-inner">
+          <div class="landing__brand">
+            <img src="assets/logo-pontiscore.png" alt="PontiScore" class="landing__brand-logo" data-testid="landing-brand-logo" />
+            <p class="landing__brand-sub">Marketing Digital</p>
+          </div>
+          <p class="landing__tagline">Diagnóstico Digital</p>
+        </div>
+      </header>
+
+      <section class="landing__section">
+        <div class="landing__container">
+          <div class="landing__grid">
+            <div class="landing__hero">
+              <h1 class="landing__title ps-anim-in" data-testid="landing-title">
+                Descubra o potencial da sua presença digital em apenas
+                <span class="landing__title-accent">2 minutos</span>.
+              </h1>
+              <p class="landing__subtitle ps-anim-in ps-delay-1">
+                Descubra como está a presença digital da sua empresa e receba um plano de ação
+                personalizado para fortalecer a sua marca, atrair mais clientes e impulsionar o
+                crescimento do seu negócio.
+              </p>
+              <div class="landing__cta-wrap ps-anim-in ps-delay-2">
+                <button type="button" class="landing__cta" data-nav="diagnostico" data-testid="landing-start-button-desktop">
+                  Começar Diagnóstico Gratuito
+                  <i data-lucide="arrow-right"></i>
+                </button>
+                <p class="landing__cta-hint">Gratuito • Cerca de 2 minutos • Sem cartão de crédito</p>
+              </div>
+            </div>
+
+            <aside class="landing__aside">
+              <p class="landing__eyebrow">COMO FUNCIONA</p>
+              <ol class="landing__steps">
+                <li class="step ps-anim-in ps-delay-2">
+                  <div class="step__icon"><i data-lucide="help-circle"></i></div>
+                  <div class="step__body">
+                    <p class="step__title">10 perguntas rápidas</p>
+                    <p class="step__desc">Sobre publicações, estratégia, identidade visual e conversão.</p>
+                  </div>
+                </li>
+                <li class="step ps-anim-in ps-delay-3">
+                  <div class="step__icon"><i data-lucide="gauge"></i></div>
+                  <div class="step__body">
+                    <p class="step__title">Resultado imediato</p>
+                    <p class="step__desc">Receba uma pontuação de 0 a 100 com uma análise detalhada de cada pilar da sua presença digital.</p>
+                  </div>
+                </li>
+                <li class="step ps-anim-in ps-delay-4">
+                  <div class="step__icon"><i data-lucide="trending-up"></i></div>
+                  <div class="step__body">
+                    <p class="step__title">Plano de crescimento</p>
+                    <p class="step__desc">Descubra os pontos fortes da sua empresa, as oportunidades de melhoria e receba recomendações personalizadas.</p>
+                  </div>
+                </li>
+              </ol>
+              <div class="landing__trust">
+                <div class="landing__trust-item"><span class="landing__trust-num">10</span><span class="landing__trust-label">perguntas</span></div>
+                <span class="landing__trust-divider"></span>
+                <div class="landing__trust-item"><span class="landing__trust-num">5</span><span class="landing__trust-label">pilares</span></div>
+                <span class="landing__trust-divider"></span>
+                <div class="landing__trust-item"><span class="landing__trust-num">~2min</span><span class="landing__trust-label">duração</span></div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <div class="landing__sticky-cta">
+        <button type="button" class="landing__cta" data-nav="diagnostico" data-testid="landing-start-button">
+          Começar Diagnóstico Gratuito
+          <i data-lucide="arrow-right"></i>
+        </button>
+        <p class="landing__sticky-hint">Gratuito • Cerca de 2 minutos</p>
+      </div>
+
+      <footer class="footer" data-testid="site-footer">
+        <div class="footer__inner">
+          <ul class="footer__links">
+            <li><a href="privacidade.html" class="footer__link" data-testid="footer-privacy-link">Política de Privacidade</a></li>
+            <li><a href="termos.html" class="footer__link" data-testid="footer-terms-link">Termos de Utilização</a></li>
+            <li><a href="mailto:contacto@pontiscore.pt" class="footer__link" data-testid="footer-contact-link">Contacto</a></li>
+          </ul>
+          <ul class="footer__socials" aria-label="Redes sociais">
+            <li><a href="https://www.instagram.com/pontiscore/" target="_blank" rel="noopener noreferrer" class="footer__social" aria-label="Instagram" data-testid="footer-instagram-link"><i data-lucide="instagram"></i></a></li>
+            <li><a href="https://facebook.com/pontiscore" target="_blank" rel="noopener noreferrer" class="footer__social" aria-label="Facebook" data-testid="footer-facebook-link"><i data-lucide="facebook"></i></a></li>
+            <li><a href="https://www.linkedin.com/in/pontiscore" target="_blank" rel="noopener noreferrer" class="footer__social" aria-label="LinkedIn" data-testid="footer-linkedin-link"><i data-lucide="linkedin"></i></a></li>
+          </ul>
+          <p class="footer__copy">© <span data-year></span> PontiScore</p>
+        </div>
+      </footer>
+    </main>
+
+    <!-- ============ QUIZ (rendered by app.js) ============ -->
+    <main class="quiz view" id="view-quiz" data-testid="question-screen"></main>
+
+    <!-- ============ DASHBOARD (rendered by app.js) ============ -->
+    <main class="view" id="view-dash"></main>
+
+    <!-- ============ THANK YOU ============ -->
+    <main class="ty view" id="view-ty" data-testid="thankyou-screen">
+      <div class="ty__content">
+        <div class="ty__icon"><i data-lucide="check"></i></div>
+        <h1 class="ty__title">Obrigado!</h1>
+        <p class="ty__subtitle">
+          Entraremos em contacto brevemente para agendar a sua Sessão Estratégica gratuita
+          + Plano de Crescimento Personalizado.
+        </p>
+        <div class="ty__info">
+          <i data-lucide="mail"></i>
+          <p>Verifique o seu email — o relatório detalhado está a caminho.</p>
+        </div>
+        <button type="button" class="ty__home" data-nav="landing" data-testid="thankyou-home-button">Voltar ao início</button>
+      </div>
+      <footer class="footer">
+        <div class="footer__inner">
+          <ul class="footer__links">
+            <li><a href="privacidade.html" class="footer__link">Política de Privacidade</a></li>
+            <li><a href="termos.html" class="footer__link">Termos de Utilização</a></li>
+            <li><a href="mailto:contacto@pontiscore.pt" class="footer__link">Contacto</a></li>
+          </ul>
+          <p class="footer__copy">© <span data-year></span> PontiScore</p>
+        </div>
+      </footer>
+    </main>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="assets/app.js"></script>
+  </body>
+</html>
